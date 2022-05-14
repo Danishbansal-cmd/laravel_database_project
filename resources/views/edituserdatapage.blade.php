@@ -1,8 +1,12 @@
+<script src = 
+"https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js">
+</script>
 <style>
     span {
         color:red;
     }
 </style>
+
 <form action="/edituserdataaction" method="POST">
     @csrf
     <input type="hidden" name='id' value='{{$edituserdata['id']}}'>
@@ -19,3 +23,15 @@
     <span>@error('address'){{$message}}@enderror</span><br>
     <button type="submit">SUBMIT</button>
 </form>
+<script>
+    $(document).ready(function() {
+        function disableBack() {
+            window.history.forward()
+        }
+        window.onload = disableBack();
+        window.onpageshow = function(e) {
+            if (e.persisted)
+                disableBack();
+        }
+    });
+</script>

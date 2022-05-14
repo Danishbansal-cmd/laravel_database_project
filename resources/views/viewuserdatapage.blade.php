@@ -1,7 +1,13 @@
 <script src = 
 "https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js">
-        </script>
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300&display=swap" rel="stylesheet">
 <style>
+    * {
+        font-family: 'Open Sans', sans-serif;
+    }
     table, th, td {
         border: 1px solid black;
         text-align: center;
@@ -28,10 +34,16 @@
         background-color: rgb(25, 231, 42);
         border-radius: 50px;
     }
-    .button a {
+    .button a , .button button {
         color: white;
         font-weight: bold;
         text-decoration: none;
+        font-size: 20px;
+        
+    }
+    .button button {
+        border: none;
+        background-color: transparent;
         
     }
     th button {
@@ -60,7 +72,7 @@
         <thead>
                 <tr>
                     <th>
-                        CH
+                        CH<input type="checkbox" id="checkboxAll" onclick="deleteAllArray({{$data}})">
                     </th>
                     <th>
                         <button onclick="sortTable(0)">ID</button>
@@ -91,7 +103,7 @@
         <tbody>
             @foreach ($data as $d)
                 <tr class="delete_mem{{$d['id']}}">
-                    <td><input type="checkbox" id ="checkbox{{$d['id']}}" name="{{$d['id']}}" value="{{$d['id']}}" onclick="deleteMultipleArray({{$d['id']}})"></td>
+                    <td><input type="checkbox" id ="checkbox{{$d['id']}}" onclick="deleteMultipleArray({{$d['id']}}, {{$data}})"></td>
                     <td>{{$d['id']}}</td>
                     <td>{{$d['name']}}</td>
                     <td>{{$d['email']}}</td>
@@ -120,7 +132,6 @@
 </span> --}}
 
 <script type="text/javascript">
-$(document).ready(function(){
     function sortTable(rowNumber) {
       var table, rows, switching, i, x, y, shouldSwitch;
       table = document.getElementById("myTable");
@@ -158,25 +169,48 @@ $(document).ready(function(){
 
     //long array to be deleted
     var toBeDeleted = [];
-    function deleteMultipleArray(someValue){ 
+    function deleteMultipleArray(someValue, data){ 
         // console.log(someValue);
         if(document.getElementById('checkbox'+someValue).checked == false){
             toBeDeleted.splice(toBeDeleted.indexOf(someValue),1);
+            if(document.querySelector('#checkboxAll').checked == true){
+                document.querySelector('#checkboxAll').checked = false;
+            }
         }else{
             toBeDeleted.push(someValue);
+            if(data.length == toBeDeleted.length){
+                document.querySelector('#checkboxAll').checked = true;
+            }
         }
         
         console.log(toBeDeleted);
         console.log(toBeDeleted.length == 1);
     }
 
+    //select all array
+    function deleteAllArray(data){
+        if(document.querySelector('#checkboxAll').checked == true){
+            toBeDeleted.splice(0,toBeDeleted.length);
+            for(var i=0;i<data.length;i++){
+                toBeDeleted.push(data[i]['id']);
+                document.querySelector('#checkbox' + data[i]['id']).checked = true;
+            }
+        }else if(toBeDeleted.length == data.length && document.querySelector('#checkboxAll').checked == false){
+            toBeDeleted.splice(0,toBeDeleted.length);
+            for(var i=0;i<data.length;i++){
+                document.querySelector('#checkbox' + data[i]['id']).checked = false;
+            }
+        }
+        
+        console.log(toBeDeleted);
+    }
+
     //delete multiple datas
     function deleteMultipleDatas(){
-        $("se-pre-con").attr("display", "block");
-    };
     if(toBeDeleted.length == 0){
         alert("Please select some records");
     }else{
+        $(".se-pre-con").css("display", "block");
         if (confirm("Are you sure you want to delete this Member?")) {
             $.ajax({
                 type:"post",
@@ -184,14 +218,17 @@ $(document).ready(function(){
                 cache: false,
                 data:{'userlisting':toBeDeleted,"_token": "{{ csrf_token() }}",},
                 success:function(data){
-                    console.log(data);
                     if(data.success == 1){
                         for(var i=0;i<toBeDeleted.length;i++){
                             $(".delete_mem" + toBeDeleted[i]).remove();
                         }
-                        alert(data.success);
+                        
+                        alert(data.message);
                     }
-                    $("se-pre-con").attr("display", "none");
+                    if(document.querySelector('#checkboxAll').checked == true){
+                            document.querySelector('#checkboxAll').checked = false;
+                    }
+                    $(".se-pre-con").css("display", "none");
                     
                     
                     
@@ -200,15 +237,13 @@ $(document).ready(function(){
 
             });
         }else {
+            $(".se-pre-con").css("display", "none");
             return false;
+            
         }
         
     }
-});
-    
-
-    
-
+}
     
 </script>
 
