@@ -26,3 +26,4 @@ Route::get('/adduser',function(){
     return view('adduserdatapage');
 });
 Route::post('/adduser',[userdataController::class, 'adduser']);
+Route::post('/delete',[userdataController::class, 'deletemultiple']);

@@ -11,10 +11,12 @@ class userdataController extends Controller
     //
     function index()
     {
+        // $data = userdata::orderBy('email','asc')->get();
         $data = userdata::all();
         return view('viewuserdatapage',['data' => $data]);
     }
 
+    //
     function delete($id)
     {
         
@@ -28,12 +30,14 @@ class userdataController extends Controller
         }
     }
 
+    //
     function edit($id) 
     {
         $data = userdata::find($id);
         return view('edituserdatapage', ['edituserdata' => $data]);
     }
 
+    //
     function editaction(Request $req)
     {
         $req->validate([
@@ -52,6 +56,7 @@ class userdataController extends Controller
         return redirect('/getuserdata');
     }
 
+    //
     function adduser(Request $req)
      {
         $req->validate([
@@ -70,5 +75,20 @@ class userdataController extends Controller
         $data->save();
 
         return redirect('/getuserdata');
+     }
+
+     //
+     function deletemultiple(Request $req)
+     {
+        $userlisting = $req->userlisting;
+        $data;
+         foreach($userlisting  as $id){
+            $data = userdata::where('id',$id)->delete();
+         }
+         if($data == 1){
+            return response()->json(['success'=>$data,'message'=>'Data deleted successfully']);
+         }
+         return response()->json(['success'=> 0,'message'=>'Some error occured']);
+         
      }
 }
